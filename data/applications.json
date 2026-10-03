@@ -137,7 +137,29 @@
       "cost": 1.5,
       "reliability": 0.96,
       "availability": 1.0
+    },
+
+    {
+      "name": "UpdateUserProfile",
+      "preconditions": {
+        "User.authenticated": true
+      },
+      "effects": {
+        "User.profile_updated": true
+      },
+      "inputs": [
+        "user"
+      ],
+      "outputs": [
+        "profile"
+      ],
+      "constraints": [],
+      "resources": [
+        "database"
+      ],
+      "cost": 1.0,
+      "reliability": 0.99,
+      "availability": 1.0
     }
   ]
 }
-

@@ -2,28 +2,37 @@
 
 ## Overview
 
-This project implements a simple capability composition system for an online
-shopping application.
+This project implements a capability composition system for an online
+shopping application using vector embeddings.
 
 The main idea is to represent application states, goals, and capabilities
-using numerical vectors. These representations are then used to compare
-capabilities, check whether capabilities can be connected, and compose several
-capabilities into a larger workflow.
+using fixed-length numerical vectors. These vectors can then be used to
+calculate similarity between capabilities.
+
+The project also checks whether capabilities can be connected based on their
+preconditions and effects. Compatible capabilities can be composed into a
+larger workflow that can be checked against a target goal.
 
 The implementation is written in Python.
+
+---
 
 ## Project Objectives
 
 The project demonstrates:
 
 - Representation of application states and goals
-- Vector representation of capabilities
+- Fixed-length vector representation of capabilities
 - Cosine similarity between capability vectors
 - Compatibility checking between capabilities
 - Comparison of alternative implementations
+- Identification of irrelevant capabilities
 - Composition of multiple compatible capabilities
 - Calculation of cost, reliability, and availability
 - Verification that a composed capability achieves the required goal
+- Automated testing using pytest
+
+---
 
 ## Application Example
 
@@ -36,8 +45,9 @@ The main capabilities are:
 - `SendNotification`
 - `CancelCart`
 - `SendEmailConfirmation`
+- `UpdateUserProfile`
 
-A successful purchase workflow is represented as:
+The successful purchase workflow is:
 
 ```text
 CreateOrder

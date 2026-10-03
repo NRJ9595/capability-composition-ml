@@ -6,7 +6,7 @@ from .composition import compose_capabilities
 
 def run_experiments():
     """
-    Run the main experiments for the capability-composition study.
+    Run the formal experiments for the capability-composition study.
     """
 
     _, goal, capabilities = load_application()
@@ -31,45 +31,96 @@ def run_experiments():
         capabilities, "SendEmailConfirmation"
     )
 
+    update_profile = find_capability(
+        capabilities, "UpdateUserProfile"
+    )
+
     print("=" * 60)
     print("FORMAL EXPERIMENTS")
     print("=" * 60)
 
     # ---------------------------------------------------------
-    # Experiment 1: Compatible capability pairs
+    # Experiment 1: Capability compatibility
     # ---------------------------------------------------------
 
     print()
-    print("Experiment 1: Compatible capability pairs")
+    print("Experiment 1: Capability compatibility")
 
-    compatible_pairs = [
-        (create_order, make_payment),
-        (make_payment, send_notification),
-    ]
+    result_1 = are_compatible(
+        create_order,
+        make_payment
+    )
 
-    for first, second in compatible_pairs:
-        result = are_compatible(first, second)
-
-        print(
-            f"{first.name} -> {second.name}: "
-            f"{result}"
-        )
-
-    # ---------------------------------------------------------
-    # Experiment 2: Incompatible capability pair
-    # ---------------------------------------------------------
-
-    print()
-    print("Experiment 2: Incompatible capability pair")
-
-    result = are_compatible(
+    result_2 = are_compatible(
         create_order,
         cancel_cart
     )
 
     print(
-        f"CreateOrder -> CancelCart: "
-        f"{result}"
+        f"CreateOrder -> MakePayment: {result_1}"
+    )
+
+    print(
+        f"CreateOrder -> CancelCart: {result_2}"
+    )
+
+    # ---------------------------------------------------------
+    # Experiment 2: Capability composition
+    # ---------------------------------------------------------
+
+    print()
+    print("Experiment 2: Capability composition")
+
+    sequence = [
+        create_order,
+        make_payment,
+        send_notification,
+    ]
+
+    composite = compose_capabilities(sequence)
+
+    print(
+        f"Composite: {composite.name}"
+    )
+
+    print(
+        f"Cost: {composite.cost:.4f}"
+    )
+
+    print(
+        f"Reliability: "
+        f"{composite.reliability:.4f}"
+    )
+
+    print(
+        f"Availability: "
+        f"{composite.availability:.4f}"
+    )
+
+    # ---------------------------------------------------------
+    # Goal verification
+    # ---------------------------------------------------------
+
+    print()
+    print("Composite goal verification")
+
+    goal_achieved = True
+
+    for key, required_value in goal.conditions.items():
+
+        produced_value = composite.effects.get(key)
+
+        if produced_value != required_value:
+            goal_achieved = False
+
+        print(
+            f"{key}: "
+            f"required={required_value}, "
+            f"produced={produced_value}"
+        )
+
+    print(
+        f"Goal achieved: {goal_achieved}"
     )
 
     # ---------------------------------------------------------
@@ -99,23 +150,80 @@ def run_experiments():
     )
 
     # ---------------------------------------------------------
-    # Experiment 4: Capability composition
+    # Experiment 4: Irrelevant capability
     # ---------------------------------------------------------
 
     print()
-    print("Experiment 4: Capability composition")
+    print("Experiment 4: Irrelevant capability")
 
-    sequence = [
+    print(
+        "Testing whether UpdateUserProfile contributes "
+        "to the purchase goal."
+    )
+
+    goal_keys = set(
+        goal.conditions.keys()
+    )
+
+    profile_effect_keys = set(
+        update_profile.effects.keys()
+    )
+
+    relevant_effects = goal_keys.intersection(
+        profile_effect_keys
+    )
+
+    print(
+        f"Goal conditions: "
+        f"{sorted(goal_keys)}"
+    )
+
+    print(
+        f"UpdateUserProfile effects: "
+        f"{sorted(profile_effect_keys)}"
+    )
+
+    print(
+        f"Effects relevant to goal: "
+        f"{sorted(relevant_effects)}"
+    )
+
+    if len(relevant_effects) == 0:
+        print(
+            "UpdateUserProfile contributes to goal: False"
+        )
+    else:
+        print(
+            "UpdateUserProfile contributes to goal: True"
+        )
+
+    # ---------------------------------------------------------
+    # Experiment 5: Operational attributes
+    # ---------------------------------------------------------
+
+    print()
+    print("Experiment 5: Operational attributes")
+
+    print()
+    print("Individual capabilities:")
+
+    selected_capabilities = [
         create_order,
         make_payment,
         send_notification,
     ]
 
-    composite = compose_capabilities(sequence)
+    for capability in selected_capabilities:
 
-    print(
-        f"Composite: {composite.name}"
-    )
+        print(
+            f"{capability.name}: "
+            f"cost={capability.cost:.4f}, "
+            f"reliability={capability.reliability:.4f}, "
+            f"availability={capability.availability:.4f}"
+        )
+
+    print()
+    print("Composite capability:")
 
     print(
         f"Cost: {composite.cost:.4f}"
@@ -129,32 +237,6 @@ def run_experiments():
     print(
         f"Availability: "
         f"{composite.availability:.4f}"
-    )
-
-    # ---------------------------------------------------------
-    # Experiment 5: Goal achievement
-    # ---------------------------------------------------------
-
-    print()
-    print("Experiment 5: Goal achievement")
-
-    goal_achieved = True
-
-    for key, required_value in goal.conditions.items():
-
-        produced_value = composite.effects.get(key)
-
-        if produced_value != required_value:
-            goal_achieved = False
-
-        print(
-            f"{key}: "
-            f"required={required_value}, "
-            f"produced={produced_value}"
-        )
-
-    print(
-        f"Goal achieved: {goal_achieved}"
     )
 
     print()
